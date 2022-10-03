@@ -18,17 +18,14 @@ class Heapq {
         arr[0] = arr.at(-1);
         arr.pop();
         
-        let nodeIdx = 0;
-        let [minVal, isLeftChild] = this.#getMinInfo(arr, nodeIdx);
-
-        while (minVal < arr[nodeIdx]) {
-            const minChildIdx = isLeftChild ? 2 * nodeIdx + 1 : 2 * nodeIdx + 2;
-            [arr[nodeIdx], arr[minChildIdx]] = [arr[minChildIdx], arr[nodeIdx]];
-            nodeIdx = minChildIdx;
-            [minVal, isLeftChild] = this.#getMinInfo(arr, nodeIdx);
-        }
+        this.#miniHeapify(arr, 0);
 
         return res;
+    }
+
+    static heapify(arr) {
+        for (let i = arr.length - 1; i > -1; i--)
+            this.#miniHeapify(arr, i);
     }
 
     static #getParentIdx(nodeIdx) {
@@ -54,5 +51,16 @@ class Heapq {
             return [arr[leftChildIdx], true];
 
         return [arr[rightChildIdx], false];
+    }
+
+    static #miniHeapify(arr, nodeIdx) {
+        let [minVal, isLeftChild] = this.#getMinInfo(arr, nodeIdx);
+        
+        while (minVal < arr[nodeIdx]) {
+            const minChildIdx = isLeftChild ? 2 * nodeIdx + 1 : 2 * nodeIdx + 2;
+            [arr[nodeIdx], arr[minChildIdx]] = [arr[minChildIdx], arr[nodeIdx]];
+            nodeIdx = minChildIdx;
+            [minVal, isLeftChild] = this.#getMinInfo(arr, nodeIdx);
+        }        
     }
 }
