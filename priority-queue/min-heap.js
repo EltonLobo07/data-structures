@@ -1,18 +1,23 @@
 class Heapq {
-    static heappush(arr, v) {
+    constructor(comparatorFn) { 
+        //    The comparator function should return true if childNode should be above the parentNode
+        this.comparatorFn = comparatorFn ?? ((childNodeVal, parentNodeVal) => childNodeVal < parentNodeVal);
+    }
+
+    heappush(arr, v) {
         arr.push(v);
 
         let nodeIdx = arr.length - 1;
         let parentIdx = this.#getParentIdx(nodeIdx);
 
-        while (parentIdx != -1 && arr[parentIdx] > arr[nodeIdx]) {
+        while (parentIdx != -1 && this.comparatorFn(arr[nodeIdx], arr[parentIdx])) {
             [arr[nodeIdx], arr[parentIdx]] = [arr[parentIdx], arr[nodeIdx]];
             nodeIdx = parentIdx;
             parentIdx = this.#getParentIdx(nodeIdx);
         }
     }
 
-    static heappop(arr) {
+    heappop(arr) {
         const res = arr[0];
 
         arr[0] = arr.at(-1);
@@ -23,40 +28,36 @@ class Heapq {
         return res;
     }
 
-    static heapify(arr) {
+    heapify(arr) {
         for (let i = arr.length - 1; i > -1; i--)
             this.#miniHeapify(arr, i);
     }
 
-    static #getParentIdx(nodeIdx) {
-        let parentIdx = -1;
-
+    #getParentIdx(nodeIdx) {
         if (nodeIdx % 2 == 0) 
-            parentIdx = (nodeIdx - 2) / 2;  // nodeIdx = 2 * parentIdx + 2
-        else
-            parentIdx = (nodeIdx - 1) / 2;
-
-        return parentIdx;
+            return (nodeIdx - 2) / 2;  // nodeIdx = 2 * parentIdx + 2
+    
+        return (nodeIdx - 1) / 2;
     }
 
-    static #getMinInfo(arr, nodeIdx) {
+    #getMinInfo(arr, nodeIdx) {
         const leftChildIdx = 2 * nodeIdx + 1;
         
         if (leftChildIdx >= arr.length)
-            return [Infinity, true];
+            return [null, true];
 
         const rightChildIdx = 2 * nodeIdx + 2;
 
-        if (rightChildIdx >= arr.length || arr[leftChildIdx] <= arr[rightChildIdx])
-            return [arr[leftChildIdx], true];
+        if (rightChildIdx < arr.length && this.comparatorFn(arr[rightChildIdx], arr[leftChildIdx]))
+            return [arr[rightChildIdx], false];
 
-        return [arr[rightChildIdx], false];
+        return [arr[leftChildIdx], true];
     }
 
-    static #miniHeapify(arr, nodeIdx) {
+    #miniHeapify(arr, nodeIdx) {
         let [minVal, isLeftChild] = this.#getMinInfo(arr, nodeIdx);
         
-        while (minVal < arr[nodeIdx]) {
+        while (minVal !== null && this.comparatorFn(minVal, arr[nodeIdx])) {
             const minChildIdx = isLeftChild ? 2 * nodeIdx + 1 : 2 * nodeIdx + 2;
             [arr[nodeIdx], arr[minChildIdx]] = [arr[minChildIdx], arr[nodeIdx]];
             nodeIdx = minChildIdx;
